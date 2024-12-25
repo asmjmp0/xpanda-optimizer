@@ -4,7 +4,7 @@
   "description": "xpanda optimizer",
   "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx ts-node src/test/test.ts",
     "build": "webpack --config webpack.config.js"
   },
   "author": "",
