@@ -2542,6 +2542,62 @@ function lowerExpression(
       });
       return {kind: 'UnsupportedNode', node: exprNode, loc: exprLoc};
     }
+    case 'Super':{
+      const expr = exprPath as NodePath<t.Identifier>;
+      expr.node.name = 'panda_opt_reserved_super'
+      const place = lowerIdentifier(builder, expr);
+      return {
+        kind: getLoadKind(builder, expr),
+        place,
+        loc: exprLoc,
+      };
+    }
+    case 'ThisExpression':{
+      const expr = exprPath as NodePath<t.Identifier>;
+      expr.node.name = 'panda_opt_reserved_this'
+      const place = lowerIdentifier(builder, expr);
+      return {
+        kind: getLoadKind(builder, expr),
+        place,
+        loc: exprLoc,
+      };
+    }
+    case 'YieldExpression':{
+      const arg = (exprPath as NodePath<t.YieldExpression>).node.argument;
+      exprPath.replaceWith(t.callExpression(t.identifier("panda_opt_reserved_yield"),arg?[<t.Expression>arg]:[]))
+      const expr = exprPath as NodePath<t.CallExpression>;
+      const calleePath = expr.get('callee');
+      if (!calleePath.isExpression()) {
+        builder.errors.push({
+          reason: `Expected Expression, got ${calleePath.type} in CallExpression (v8 intrinsics not supported). This error is likely caused by a bug in React Compiler. Please file an issue`,
+          severity: ErrorSeverity.Todo,
+          loc: calleePath.node.loc ?? null,
+          suggestions: null,
+        });
+        return {kind: 'UnsupportedNode', node: exprNode, loc: exprLoc};
+      }
+      if (calleePath.isMemberExpression()) {
+        const memberExpr = lowerMemberExpression(builder, calleePath);
+        const propertyPlace = lowerValueToTemporary(builder, memberExpr.value);
+        const args = lowerArguments(builder, expr.get('arguments'));
+        return {
+          kind: 'MethodCall',
+          receiver: memberExpr.object,
+          property: {...propertyPlace},
+          args,
+          loc: exprLoc,
+        };
+      } else {
+        const callee = lowerExpressionToTemporary(builder, calleePath);
+        const args = lowerArguments(builder, expr.get('arguments'));
+        return {
+          kind: 'CallExpression',
+          callee,
+          args,
+          loc: exprLoc,
+        };
+      }
+    }
     default: {
       builder.errors.push({
         reason: `(BuildHIR::lowerExpression) Handle ${exprPath.type} expressions`,

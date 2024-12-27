@@ -1,0 +1,1 @@
+export {runWithAST} from './SimplifyCompat'
