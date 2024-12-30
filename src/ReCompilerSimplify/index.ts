@@ -1,1 +1,1 @@
-export {runWithAST} from './SimplifyCompat'
+export {runWithAST} from './SimplifyMain'

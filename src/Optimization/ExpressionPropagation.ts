@@ -76,7 +76,7 @@ function expressionPropagationImpl(fn:HIRFunction):void{
 
 export function expressionPropagation(fn: HIRFunction): void {
     // console.log(printFunction(fn))
-    expressionPropagationImpl(fn)    
+    expressionPropagationImpl(fn)
     // console.log(printFunction(fn))
 
 }

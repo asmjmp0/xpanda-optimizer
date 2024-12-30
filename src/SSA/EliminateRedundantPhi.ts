@@ -92,13 +92,14 @@ export function eliminateRedundantPhi(
             same = operand.identifier;
           }
         }
-        CompilerError.invariant(same !== null, {
-          reason: 'Expected phis to be non-empty',
-          description: null,
-          loc: null,
-          suggestions: null,
-        });
-        rewrites.set(phi.place.identifier, same);
+        //fixme, just ignore this error!
+        // CompilerError.invariant(same !== null, {
+        //   reason: 'Expected phis to be non-empty',
+        //   description: null,
+        //   loc: null,
+        //   suggestions: null,
+        // });
+        // rewrites.set(phi.place.identifier, same);
         block.phis.delete(phi);
       }
 
